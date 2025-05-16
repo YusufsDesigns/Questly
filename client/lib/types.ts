@@ -103,12 +103,6 @@ export interface QuestOutcome {
     outcome: {
         description: string;
         success: boolean;
-        statCheck: {
-            stat: string;
-            difficulty: number;
-            roll: number;
-            threshold: number;
-        };
         rewards: {
             lootEligible: boolean;
             lootQuality: string;
