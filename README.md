@@ -39,27 +39,6 @@
 
 ---
 
-## 🎯 Tracks
-
-### 🧠 AI Track
-
-Questly uses **AgentKit** and the **Vercel AI SDK** to generate and manage intelligent, branching quests — letting the AI serve as a Dungeon Master that adapts to your choices.
-
-### 🧍 Consumer Track
-
-Designed for fantasy lovers, gamers, and readers — Questly is a **consumer-facing entertainment experience** that turns passive story consumption into interactive narrative gameplay.
-
----
-
-## 🧪 Challenges Overcome
-
-* Designing dynamic, branching UI for quest stages
-* Integrating AgentKit with confusing or sparse docs
-* Troubleshooting Discord verification and lack of access to dev communities
-* Fine-tuning AI prompt engineering for consistent, lore-rich quest generation
-
----
-
 ## 📦 Setup
 
 ```bash
