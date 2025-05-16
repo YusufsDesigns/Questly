@@ -10,10 +10,6 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export async function saveCharacterToIPFS(character: Character): Promise<string> {
-  // This is a mock function that would normally upload to IPFS
-  // In a real application, you would use a service like Pinata, NFT.Storage, etc.
-  console.log("Saving character to IPFS:", character);
-  
   // Simulated IPFS URI
   return `ipfs://Qm${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`;
 }
@@ -62,7 +58,6 @@ export async function uploadCharacterToPinata(character: Character) {
 
   try {
     const result = await pinata.upload.json(metadata);
-    console.log("✅ Uploaded to Pinata:", result);
     return result; // Contains the IPFS hash
   } catch (error) {
     console.error("❌ Failed to upload character:", error);
@@ -91,7 +86,6 @@ export async function uploadLootToPinata(loot: Loot) {
 
   try {
     const result = await pinata.upload.json(metadata);
-    console.log("✅ Uploaded loot to Pinata:", result);
     return result; // Contains the IPFS hash
   } catch (error) {
     console.error("❌ Failed to upload loot:", error);

@@ -50,7 +50,6 @@ export default function QuestDisplay({
       });
 
       const followupQuest = followupResponse.data;
-      console.log('Follow-up Quest:', followupQuest);
       
       setQuestLoading(false);
       setQuestComplete(false);

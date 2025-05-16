@@ -8,11 +8,6 @@ import {
 } from "@coinbase/agentkit";
 
 const initializeAgentKit = async (): Promise<AgentKit> => {
-  console.log("Initializing AgentKit...");
-  console.log("CDP_API_KEY_NAME:", process.env.CDP_API_KEY_NAME);
-  console.log("CDP_API_KEY_PRIVATE_KEY:", process.env.CDP_API_KEY_PRIVATE_KEY);
-
-
   const agentKit = await AgentKit.from({
     cdpApiKeyName: process.env.CDP_API_KEY_NAME,
     cdpApiKeyPrivateKey: process.env.CDP_API_KEY_PRIVATE_KEY?.replace(/\\n/g, "\n")

@@ -94,7 +94,6 @@ export default function QuestPage({
           setNewLoot(selectedLoot);
           setShowLootModal(true);
           // Log the loot gained
-          console.log("Loot gained:", selectedLoot);
         }
       }
       return outcome;

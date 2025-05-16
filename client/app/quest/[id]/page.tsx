@@ -32,7 +32,6 @@ const Page = ({ params }: { params: Promise<{ id: string }> }) => {
           character,
           { headers: { 'Content-Type': 'application/json' } }
         );
-        console.log('Generated quest:', data);
         setQuest(data);
       } catch (err) {
         console.error('Quest generation failed:', err);

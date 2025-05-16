@@ -7,10 +7,6 @@ import characterAbi from "@/abi/characterAbi.json";
 const contractAddress = process.env.NEXT_PUBLIC_CHARACTER_NFT_CONTRACT_ADDRESS as `0x${string}`;
 
 export function useNFTMetadata(tokenId: bigint) {
-  console.log("Fetching metadata for tokenId:", tokenId);
-  console.log("Contract Address:", contractAddress);
-  
-  
   const [metadata, setMetadata] = useState<any>(null);
 
   const { data: uri } = useReadContract({
@@ -27,7 +23,6 @@ export function useNFTMetadata(tokenId: bigint) {
       try {
         const res = await fetch(uri as string);
         const json = await res.json();
-        console.log("Fetched metadata:", json);
         
         setMetadata(json);
       } catch (err) {

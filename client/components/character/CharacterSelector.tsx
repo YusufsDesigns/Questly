@@ -45,20 +45,16 @@ export default function CharacterSelector() {
 
   useEffect(() => {
     if (isReceiptReady && receipt) {
-      console.log("Transaction receipt:", receipt);
 
       const characterCreatedLog = receipt.logs.find(
         (log) => log.topics[0] === characterCreatedTopic
       );
-
-      console.log("CharacterCreated log:", characterCreatedLog);
 
       if (characterCreatedLog) {
         try {
           if (characterCreatedLog.topics[1]) {
             const newTokenId = BigInt(characterCreatedLog.topics[1]);
             setTokenId(newTokenId);
-            console.log("Character created with tokenId:", newTokenId);
           }
         } catch (error) {
           console.error("Error parsing tokenId:", error);
