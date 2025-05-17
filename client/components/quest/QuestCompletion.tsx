@@ -111,25 +111,6 @@ export default function QuestCompletion({
                   +{conclusion.rewards.xp} XP
                 </span>
               </div>
-
-              {conclusion.rewards.lootEligible && (
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-white font-medium">Loot Quality:</span>
-                  <span
-                    className={`font-bold ${
-                      conclusion.rewards.lootQuality >= 75
-                        ? "text-purple-400"
-                        : conclusion.rewards.lootQuality >= 60
-                        ? "text-blue-400"
-                        : conclusion.rewards.lootQuality >= 40
-                        ? "text-green-400"
-                        : "text-gray-400"
-                    }`}
-                  >
-                    {getLootQualityText(conclusion.rewards.lootQuality)}
-                  </span>
-                </div>
-              )}
             </div>
           </div>
 
