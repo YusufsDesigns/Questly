@@ -15,6 +15,7 @@ interface CharacterProp {
 
 export async function POST(req: NextRequest) {
     try {
+        let txHash: `0x${string}`;
         const body = await req.json()
 
         const {
@@ -48,25 +49,30 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Contract address not configured' }, { status: 400 });
         }
 
-        const txHash = await walletClient.writeContract({
-            address: contractAddress as `0x${string}`,
-            abi: questlyAbi,
-            functionName: 'completeQuest',
-            args: [
-                BigInt(characterId),
-                BigInt(character.xp),
-                BigInt(character.strength),
-                BigInt(character.agility),
-                BigInt(character.intellect),
-                BigInt(character.charisma),
-                BigInt(character.luck),
-                uri
-            ],
-        })
-
-        console.log('Transaction Hash:', txHash)
-
-        return NextResponse.json({ success: true, txHash })
+        try {
+            const txHash = await walletClient.writeContract({
+                address: contractAddress as `0x${string}`,
+                abi: questlyAbi,
+                functionName: 'completeQuest',
+                args: [
+                    BigInt(characterId),
+                    BigInt(character.xp),
+                    BigInt(character.strength),
+                    BigInt(character.agility),
+                    BigInt(character.intellect),
+                    BigInt(character.charisma),
+                    BigInt(character.luck),
+                    uri
+                ],
+            })
+    
+            console.log('Transaction Hash:', txHash)
+            return NextResponse.json({ success: true, txHash })
+            
+        } catch (error) {
+            console.log('Error in transaction:', error);
+            throw error;
+        }
     } catch (err: any) {
         return NextResponse.json({ error: err.message }, { status: 500 })
     }

@@ -8,6 +8,58 @@ interface QuestOutcomeProps {
 }
 
 const QuestOutcomes = ({ outcome, onNextStage, loading } : QuestOutcomeProps) => {
+  // Helper function to determine styles based on outcomeStatus
+  const getStatusStyles = () => {
+    switch(outcome.outcome.outcomeStatus) {
+      case "success":
+        return {
+          border: "border-yellow-500 shadow-lg shadow-yellow-900/20",
+          background: "linear-gradient(rgba(26, 54, 18, 0.8), rgba(38, 83, 28, 0.9))",
+          title: "TRIUMPH!",
+          titleColor: "text-yellow-300",
+          titleShadow: "0 0 10px rgba(255, 215, 0, 0.7), 0 0 20px rgba(255, 215, 0, 0.4)",
+          gradient: "linear-gradient(90deg, transparent, #DAA520, transparent)",
+          messageBox: "bg-green-900 bg-opacity-20 border border-green-800",
+          message: "The fates have smiled upon your endeavor!"
+        };
+      case "partial":
+        return {
+          border: "border-amber-500 shadow-lg shadow-amber-900/20",
+          background: "linear-gradient(rgba(42, 42, 18, 0.8), rgba(70, 60, 28, 0.9))",
+          title: "MIXED FORTUNE",
+          titleColor: "text-amber-300",
+          titleShadow: "0 0 10px rgba(255, 191, 0, 0.7), 0 0 20px rgba(255, 191, 0, 0.4)",
+          gradient: "linear-gradient(90deg, transparent, #B8860B, transparent)",
+          messageBox: "bg-amber-900 bg-opacity-20 border border-amber-800",
+          message: "Fortune smiles, yet shadows linger on your path."
+        };
+      case "failure":
+        return {
+          border: "border-gray-700 shadow-lg shadow-red-900/20",
+          background: "linear-gradient(rgba(54, 18, 18, 0.8), rgba(83, 28, 28, 0.9))",
+          title: "DEFEAT",
+          titleColor: "text-red-300",
+          titleShadow: "0 0 10px rgba(255, 0, 0, 0.7), 0 0 20px rgba(255, 0, 0, 0.4)",
+          gradient: "linear-gradient(90deg, transparent, #8B0000, transparent)",
+          messageBox: "bg-red-900 bg-opacity-20 border border-red-800",
+          message: "Fortune has turned against you this day."
+        };
+      default:
+        return {
+          border: "border-gray-700 shadow-lg shadow-gray-900/20",
+          background: "linear-gradient(rgba(30, 30, 30, 0.8), rgba(50, 50, 50, 0.9))",
+          title: "UNCERTAIN",
+          titleColor: "text-gray-300",
+          titleShadow: "0 0 10px rgba(200, 200, 200, 0.7), 0 0 20px rgba(200, 200, 200, 0.4)",
+          gradient: "linear-gradient(90deg, transparent, #708090, transparent)",
+          messageBox: "bg-gray-900 bg-opacity-20 border border-gray-800",
+          message: "The outcome remains shrouded in mystery."
+        };
+    }
+  };
+
+  const styles = getStatusStyles();
+
   return (
     <motion.div
       key="outcome"
@@ -17,15 +69,9 @@ const QuestOutcomes = ({ outcome, onNextStage, loading } : QuestOutcomeProps) =>
       className="mb-4"
     >
       <div
-        className={`sm:p-6 p-3 rounded-lg relative overflow-hidden ${
-          outcome.outcome.success
-            ? "border-yellow-500 shadow-lg shadow-yellow-900/20"
-            : "border-gray-700 shadow-lg shadow-red-900/20"
-        }`}
+        className={`sm:p-6 p-3 rounded-lg relative overflow-hidden ${styles.border}`}
         style={{
-          background: outcome.outcome.success
-            ? "linear-gradient(rgba(26, 54, 18, 0.8), rgba(38, 83, 28, 0.9))"
-            : "linear-gradient(rgba(54, 18, 18, 0.8), rgba(83, 28, 28, 0.9))",
+          background: styles.background,
         }}
       >
         {/* Decorative corner flourishes */}
@@ -45,24 +91,18 @@ const QuestOutcomes = ({ outcome, onNextStage, loading } : QuestOutcomeProps) =>
 
         <div className="text-center mb-4">
           <h3
-            className={`font-bold text-2xl mb-1 ${
-              outcome.outcome.success ? "text-yellow-300" : "text-red-300"
-            }`}
+            className={`font-bold text-2xl mb-1 ${styles.titleColor}`}
             style={{
-              textShadow: outcome.outcome.success
-                ? "0 0 10px rgba(255, 215, 0, 0.7), 0 0 20px rgba(255, 215, 0, 0.4)"
-                : "0 0 10px rgba(255, 0, 0, 0.7), 0 0 20px rgba(255, 0, 0, 0.4)",
+              textShadow: styles.titleShadow,
             }}
           >
-            {outcome.outcome.success ? "TRIUMPH!" : "DEFEAT"}
+            {styles.title}
           </h3>
 
           <div
             className="w-24 h-1 mx-auto rounded"
             style={{
-              background: outcome.outcome.success
-                ? "linear-gradient(90deg, transparent, #DAA520, transparent)"
-                : "linear-gradient(90deg, transparent, #8B0000, transparent)",
+              background: styles.gradient,
             }}
           ></div>
         </div>
@@ -71,17 +111,9 @@ const QuestOutcomes = ({ outcome, onNextStage, loading } : QuestOutcomeProps) =>
           {outcome.outcome.description}
         </p>
 
-        <div
-          className={`mt-4 p-3 rounded ${
-            outcome.outcome.success
-              ? "bg-green-900 bg-opacity-20 border border-green-800"
-              : "bg-red-900 bg-opacity-20 border border-red-800"
-          }`}
-        >
+        <div className={`mt-4 p-3 rounded ${styles.messageBox}`}>
           <p className="text-white text-sm">
-            {outcome.outcome.success
-              ? "The fates have smiled upon your endeavor!"
-              : "Fortune has turned against you this day."}
+            {styles.message}
           </p>
         </div>
       </div>

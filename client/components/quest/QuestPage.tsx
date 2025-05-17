@@ -70,32 +70,8 @@ export default function QuestPage({
 
       const outcome: QuestOutcome = response.data;
       setQuestOutcome(outcome);
-
-      // Check if loot should be granted
-      if (outcome.outcome.rewards.lootEligible) {
-        const quality = outcome.outcome.rewards.lootQuality;
-
-        // Find all loot matching this rarity
-        const matchingLoot = PREDEFINED_LOOT.filter(
-          (loot) => loot.rarity === quality
-        );
-
-        if (matchingLoot.length > 0) {
-          // Randomly select one loot from matching pool
-          const selectedLoot =
-            matchingLoot[Math.floor(Math.random() * matchingLoot.length)];
-
-          // Apply stat bonuses to character
-          setCharacter((prev) =>
-            prev ? applyLootBonuses(prev, selectedLoot) : null
-          );
-
-          // You might want to store this selected loot in state/display it in the UI
-          setNewLoot(selectedLoot);
-          setShowLootModal(true);
-          // Log the loot gained
-        }
-      }
+      console.log(outcome);
+      
       return outcome;
     } catch (error: any) {
       console.error("Failed to resolve quest choice:", error);
@@ -173,6 +149,32 @@ export default function QuestPage({
 
         const questConclusion = response.data as QuestConclusion;
 
+        // Check if loot should be granted
+      if (questConclusion.conclusion.rewards.lootEligible) {
+        const quality = questConclusion.conclusion.rewards.lootQuality;
+
+        // Find all loot matching this rarity
+        const matchingLoot = PREDEFINED_LOOT.filter(
+          (loot) => loot.rarity === quality
+        );
+
+        if (matchingLoot.length > 0) {
+          // Randomly select one loot from matching pool
+          const selectedLoot =
+            matchingLoot[Math.floor(Math.random() * matchingLoot.length)];
+
+          // Apply stat bonuses to character
+          setCharacter((prev) =>
+            prev ? applyLootBonuses(prev, selectedLoot) : null
+          );
+
+          // You might want to store this selected loot in state/display it in the UI
+          setNewLoot(selectedLoot);
+          setShowLootModal(true);
+          // Log the loot gained
+        }
+      }
+
         setCompletedQuest(questConclusion);
         setQuestComplete(true);
         setCharacter((prev) =>
@@ -181,28 +183,28 @@ export default function QuestPage({
 
         setQuestOutcome(null);
 
-        await axios.post("/api/quest/complete", {
-          characterId: id,
-          character: {
-            ...character,
-            xp: character.xp + questConclusion.conclusion.rewards.xp,
-            strength:
-              character.strength +
-              questConclusion.conclusion.rewards.statChanges.strength,
-            agility:
-              character.agility +
-              questConclusion.conclusion.rewards.statChanges.agility,
-            intellect:
-              character.intellect +
-              questConclusion.conclusion.rewards.statChanges.intellect,
-            charisma:
-              character.charisma +
-              questConclusion.conclusion.rewards.statChanges.charisma,
-            luck:
-              character.luck +
-              questConclusion.conclusion.rewards.statChanges.luck,
-          },
-        });
+        // await axios.post("/api/quest/complete", {
+        //   characterId: id,
+        //   character: {
+        //     ...character,
+        //     xp: character.xp + questConclusion.conclusion.rewards.xp,
+        //     strength:
+        //       character.strength +
+        //       questConclusion.conclusion.rewards.statChanges.strength,
+        //     agility:
+        //       character.agility +
+        //       questConclusion.conclusion.rewards.statChanges.agility,
+        //     intellect:
+        //       character.intellect +
+        //       questConclusion.conclusion.rewards.statChanges.intellect,
+        //     charisma:
+        //       character.charisma +
+        //       questConclusion.conclusion.rewards.statChanges.charisma,
+        //     luck:
+        //       character.luck +
+        //       questConclusion.conclusion.rewards.statChanges.luck,
+        //   },
+        // });
       }
 
       // Reset outcome in both cases

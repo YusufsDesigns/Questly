@@ -25,14 +25,40 @@ const QuestOptions = ({
   loading,
   selectedOptionIndex,
 }: QuestOptionProps) => {
-  // Calculate a contrast color for the stat based on difficulty
-  const difficultyColor =
-    option.difficulty < 10
-      ? "text-green-300"
-      : option.difficulty < 15
-      ? "text-yellow-300"
-      : "text-red-300";
-      
+  // Get the relevant character stat value
+  const getStatValue = (statName: string): number => {
+    const stat = statName.toLowerCase();
+    switch (stat) {
+      case "strength": return character.strength;
+      case "agility": return character.agility;
+      case "intellect": return character.intellect;
+      case "charisma": return character.charisma;
+      case "luck": return character.luck;
+      default: return 5; // Default value if stat not found
+    }
+  };
+  
+  const statValue = getStatValue(option.requiredStat);
+  
+  // Calculate relative difficulty based on character's relevant stat
+  // This creates a more meaningful comparison between difficulty and character ability
+  const relativeDifficulty = Math.max(0, Math.min(100, (option.difficulty / (statValue + 2)) * 50));
+  
+  // Determine difficulty text and color based on relative difficulty
+  let difficultyText = "";
+  let difficultyColor = "";
+  
+  if (relativeDifficulty < 33) {
+    difficultyText = "Easy";
+    difficultyColor = "text-green-300";
+  } else if (relativeDifficulty < 66) {
+    difficultyText = "Medium";
+    difficultyColor = "text-yellow-300";
+  } else {
+    difficultyText = "Hard";
+    difficultyColor = "text-red-300";
+  }
+  
   // Determine if this option is the one being loaded
   const isSelected = selectedOptionIndex === index && loading;
 
@@ -164,17 +190,27 @@ const QuestOptions = ({
               }}
             ></div>
 
-            {/* Difficulty indicator */}
+            {/* Difficulty indicator relative to character stat */}
             <div
               className="h-full rounded-full"
               style={{
-                width: `${Math.min(100, option.difficulty * 5)}%`,
+                width: `${relativeDifficulty}%`,
                 background:
-                  option.difficulty < 10
+                  relativeDifficulty < 33
                     ? "linear-gradient(90deg, #2D803B, #47A655)"
-                    : option.difficulty < 15
+                    : relativeDifficulty < 66
                     ? "linear-gradient(90deg, #B7950B, #F1C40F)"
                     : "linear-gradient(90deg, #922B21, #E74C3C)",
+              }}
+            ></div>
+            
+            {/* Character stat indicator - shows how your stat measures up to the challenge */}
+            <div
+              className="absolute h-full w-2 bg-white"
+              style={{
+                left: `${Math.min(100, (statValue / (option.difficulty * 2)) * 100)}%`,
+                boxShadow: "0 0 5px 1px rgba(255, 255, 255, 0.7)",
+                opacity: 0.8,
               }}
             ></div>
           </div>
@@ -195,13 +231,11 @@ const QuestOptions = ({
               {option.requiredStat === "luck" && "🔮"}
             </span>
             <span className={`text-sm font-medium ${difficultyColor}`}>
-              {option.requiredStat} •{" "}
-              {option.difficulty < 10
-                ? "Easy"
-                : option.difficulty < 15
-                ? "Medium"
-                : "Hard"}{" "}
-              ({option.difficulty})
+              {option.requiredStat}{" "}
+              <span className="text-white opacity-80">{statValue}</span>
+              {" • "}
+              {difficultyText}{" "}
+              <span className="text-gray-300 opacity-70">({option.difficulty})</span>
             </span>
           </div>
         </div>

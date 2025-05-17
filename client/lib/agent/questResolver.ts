@@ -4,37 +4,136 @@ import { Character, Quest, QuestOutcome } from "../types";
 import { generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
 
+/**
+ * Calculates the success probability based on character stats and option requirements
+ * @returns number between 0-1 representing success probability
+ */
+const calculateSuccessProbability = (
+  character: Character,
+  requiredStat: string,
+  difficulty: number
+): number => {
+  // Get the primary stat value
+  let primaryStatValue = 0;
+  switch (requiredStat.toLowerCase()) {
+    case "strength":
+      primaryStatValue = character.strength;
+      break;
+    case "agility":
+      primaryStatValue = character.agility;
+      break;
+    case "intellect":
+      primaryStatValue = character.intellect;
+      break;
+    case "charisma":
+      primaryStatValue = character.charisma;
+      break;
+    case "luck":
+      primaryStatValue = character.luck;
+      break;
+    default:
+      primaryStatValue = 5; // Default moderate value if stat not found
+  }
+
+  // Automatic failure if difficulty is at least 5 higher than the required stat
+  if (difficulty >= primaryStatValue + 5) {
+    // Small chance based on luck to not completely fail
+    const luckChance = (character.luck / 40) * 0.15;
+    return Math.max(0.01, Math.min(0.15, luckChance));
+  }
+  
+  // Base probability calculation using the primary stat
+  let successProbability = primaryStatValue / (primaryStatValue + difficulty);
+  
+  // Calculate secondary stat bonus with reduced weight - only minimal compensation
+  const allStats = [
+    character.strength,
+    character.agility, 
+    character.intellect,
+    character.charisma,
+    character.luck
+  ];
+  
+  // Find the highest secondary stat (excluding the primary one)
+  const secondaryStats = allStats.filter(stat => stat !== primaryStatValue);
+  const highestSecondaryStat = Math.max(...secondaryStats);
+  
+  // Apply a much smaller bonus from secondary stats - limited compensation
+  // Maximum 10% bonus even with very high secondary stats
+  const secondaryBonus = Math.max(0, Math.min(0.1, (highestSecondaryStat - difficulty) / 30));
+  
+  // Apply luck modifier (small random element, influenced by character's luck)
+  const luckModifier = (character.luck / 30) * (Math.random() * 0.2);
+  
+  // Calculate the final probability with all factors
+  successProbability = Math.min(0.95, Math.max(0.05, successProbability + secondaryBonus + luckModifier));
+
+  return successProbability;
+};
+
+/**
+ * Determines the outcome status based on the calculated success probability
+ */
+const determineOutcomeStatus = (successProbability: number): "success" | "partial" | "failure" => {
+  const roll = Math.random();
+  
+  // Higher threshold for success, making it more difficult to achieve
+  if (roll < successProbability * 0.6) {
+    return "success";
+  } else if (roll < successProbability * 1.2) {
+    return "partial";
+  } else {
+    return "failure";
+  }
+};
+
 export const resolveQuestChoice = async (
   characterData: Character,
   questData: Quest,
   choiceIndex: number
 ): Promise<QuestOutcome> => {
+  // Get the selected option
+  const selectedOption = questData.options[choiceIndex];
+  if (!selectedOption) {
+    throw new Error(`Invalid choice index: ${choiceIndex}`);
+  }
+
+  // Calculate success probability based on character stats and difficulty
+  const successProbability = calculateSuccessProbability(
+    characterData,
+    selectedOption.requiredStat,
+    selectedOption.difficulty
+  );
+  
+  // Determine outcome status
+  const outcomeStatus = determineOutcomeStatus(successProbability);
+
   const systemPrompt = `You are the Master Storyteller for Questly, an immersive fantasy RPG game. Your task is to vividly continue the story based on the player's choice, crafting an engaging narrative that feels like a page-turner fantasy novel.
 
   When resolving a quest choice, create a rich, immersive continuation of the story that:
 
   1. Provides a detailed, atmospheric description of what unfolds after the choice
-  2. Incorporates dramatic tension and meaningful challenges (success or failure should both be interesting)
+  2. Incorporates dramatic tension and meaningful challenges (outcomes should be varied and interesting)
   3. Introduces unexpected twists, complications, or revelations that deepen the story
   4. Awards appropriate minor rewards for success, and imposes consequences or lessons for failure
   5. Advances the story to the next stage rather than concluding it (unless this is the final stage)
 
-  Use the character's stats and the difficulty of the chosen path to influence the likelihood of success:
-  - A character with lower relevant stats should have a harder time succeeding.
-  - Success should not be frequent; make it feel earned.
-  - Failure can be just as narratively rewarding.
-
-  Loot should not always be granted. Only award loot eligibility in special or significant moments (~20–30% of the time).
+  The outcome has already been determined to be: "${outcomeStatus}"
+  - If "success": Character overcomes the challenge with skill and achieves their goal
+  - If "partial": Character struggles but manages some progress, though not complete success
+  - If "failure": Character's attempt goes wrong, leading to complications or setbacks
+  
+  The narrative should highlight how the character's ${selectedOption.requiredStat} (required stat) affected the outcome.
+  ${outcomeStatus !== "success" && (selectedOption.requiredStat.toLowerCase() as keyof Character) in characterData && 
+    Number(characterData[selectedOption.requiredStat.toLowerCase() as keyof Character] ?? 0) < selectedOption.difficulty 
+    ? `Note that the character's ${selectedOption.requiredStat} stat (${characterData[selectedOption.requiredStat.toLowerCase() as keyof Character]}) is below the difficulty level (${selectedOption.difficulty}).` 
+    : ""}
 
   Provide the response in this JSON format:
   {
     "outcome": {
-      "description": string,  // Rich, detailed narrative of what happens
-      "success": boolean,     // Whether the outcome favored the character or not
-      "rewards": {
-        "lootEligible": boolean,
-        "lootQuality": "Common" | "Uncommon" | "Rare" | "Epic" | "Legendary" // Rarity tier of the loot
-      }
+      "description": string,  // narrative of what happens
+      "outcomeStatus": "${outcomeStatus}",  // Already determined
     },
     "nextStage": {
       "questStage": number,          // The new stage number
@@ -57,15 +156,21 @@ export const resolveQuestChoice = async (
   Character: ${JSON.stringify(characterData, null, 2)}
   Quest: ${JSON.stringify(questData, null, 2)}
   Choice Index: ${choiceIndex}
+  Selected Option: ${JSON.stringify(selectedOption, null, 2)}
 
   Current Stage: ${questData.questStage} of ${questData.totalStages}
   ${
     questData.questStage >= questData.totalStages
-      ? "This is the final stage of the quest. Conclude the story appropriately."
-      : "This is not the final stage. Continue the adventure with new choices."
+      ? "This is the final stage of the quest. Conclude the story appropriately. lootEligible should ONLY be true if the quest outcome was successful."
+      : "This is not the final stage. Continue the adventure with new choices. lootEligible should ALWAYS be false at this stage."
   }
 
-  Make the narrative immersive and responsive to player stats and choices. Success should be earned. Loot should only be rewarded occasionally.`;
+  Important rules:
+  1. The outcome has been determined based on the character's stats and is: "${outcomeStatus}"
+  2. Make the narrative immersive and responsive to player stats and choices.
+  3. Each new option should target different stats to give different character builds unique pathways.
+  4. Each option should have a different difficulty level appropriate for the situation (between 5-15).
+  5. The storytelling should be vivid and incorporate elements of ${characterData.characterClass} abilities.`;
 
   const { text } = await generateText({
     model: openai("gpt-4o"),
@@ -79,6 +184,10 @@ export const resolveQuestChoice = async (
       .replace(/^```(?:json)?\s*/i, '')
       .replace(/\s*```$/, '');
     const outcomeData: QuestOutcome = JSON.parse(cleanedText);
+    
+    // Ensure the predetermined outcome status is used
+    outcomeData.outcome.outcomeStatus = outcomeStatus;
+    
     return outcomeData;
   } catch (error) {
     console.error("Failed to parse quest outcome data:", error);

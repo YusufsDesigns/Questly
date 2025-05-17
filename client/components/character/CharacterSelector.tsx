@@ -211,26 +211,28 @@ export default function CharacterSelector() {
           </motion.div>
         )
       ) : (
-        <motion.div
-          key="ready"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-          className="glass-panel max-w-md mx-auto p-8 text-center"
-        >
-          <h2 className="fantasy-subtitle mb-4">Ready for Adventure!</h2>
-          <p className="text-gray-300 mb-6">
-            Your character NFT has been minted and is ready to embark on an epic
-            quest.
-          </p>
-          <Link
-            href={`/quest/${tokenId}`}
-            className="btn-fantasy text-sm animate-pulse"
+        <div className="p-4">
+          <motion.div
+            key="ready"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="glass-panel max-w-md mx-auto p-8 text-center"
           >
-            Start Quest
-          </Link>
-        </motion.div>
+            <h2 className="fantasy-subtitle mb-4">Ready for Adventure!</h2>
+            <p className="text-gray-300 mb-6">
+              Your character NFT has been minted and is ready to embark on an epic
+              quest.
+            </p>
+            <Link
+              href={`/quest/${tokenId}`}
+              className="btn-fantasy text-sm animate-pulse"
+            >
+              Start Quest
+            </Link>
+          </motion.div>
+        </div>
       )}
     </>
   );

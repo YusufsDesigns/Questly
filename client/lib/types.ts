@@ -102,11 +102,7 @@ export interface QuestContext {
 export interface QuestOutcome {
     outcome: {
         description: string;
-        success: boolean;
-        rewards: {
-            lootEligible: boolean;
-            lootQuality: string;
-        };
+        outcomeStatus: string;
     };
     nextStage: {
         questStage: number;
@@ -169,7 +165,7 @@ export interface QuestConclusion {
                 luck: number;
             };
             lootEligible: boolean;
-            lootQuality: number;
+            lootQuality: string;
         };
         futureHooks: Array<{
             title: string;
