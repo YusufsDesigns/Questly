@@ -1,7 +1,7 @@
 // app/lib/utils.ts
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Character, CharacterClass, Alignment, Loot, QuestConclusion } from "./types";
+import { Character, CharacterClass, Alignment, Loot, QuestConclusion, QuestOutcome } from "./types";
 import { CHARACTER_TEMPLATES } from "./constants";
 import { pinata } from "./pinata";
 
@@ -137,6 +137,18 @@ export function calculateLevelFromXP(xp: number): number {
   }
 
   return 300; // Cap at max level
+}
+
+export function applyOutcomeRewards(character: Character, outcome: QuestOutcome): Character {
+  return {
+    ...character,
+    strength: character.strength + outcome.outcome.rewards.statChange.strength,
+    agility: character.agility + outcome.outcome.rewards.statChange.agility,
+    intellect: character.intellect + outcome.outcome.rewards.statChange.intellect,
+    charisma: character.charisma + outcome.outcome.rewards.statChange.charisma,
+    luck: character.luck + outcome.outcome.rewards.statChange.luck,
+    xp: character.xp + outcome.outcome.rewards.xp,
+  };
 }
 
 export function applyLootBonuses(character: Character, loot: Loot): Character {

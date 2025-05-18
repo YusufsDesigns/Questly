@@ -47,7 +47,7 @@ const Page = ({ params }: { params: Promise<{ id: string }> }) => {
       <div className="h-screen w-full flex items-center justify-center">
         <MagicParticles />
         <FloatingRunes />
-        <div className="fantasy-title text-2xl sm:text-3xl font-bold flex space-x-1 px-3">
+        <div className="fantasy-title text-2xl font-bold flex space-x-1 p-3 mx-3">
           {text.split("").map((char, index) => (
             <motion.span
               key={index}

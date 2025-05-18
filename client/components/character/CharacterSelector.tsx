@@ -211,7 +211,7 @@ export default function CharacterSelector() {
           </motion.div>
         )
       ) : (
-        <div className="p-4">
+        <div className="mx-4">
           <motion.div
             key="ready"
             initial={{ opacity: 0 }}

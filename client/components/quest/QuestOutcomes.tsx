@@ -20,7 +20,9 @@ const QuestOutcomes = ({ outcome, onNextStage, loading } : QuestOutcomeProps) =>
           titleShadow: "0 0 10px rgba(255, 215, 0, 0.7), 0 0 20px rgba(255, 215, 0, 0.4)",
           gradient: "linear-gradient(90deg, transparent, #DAA520, transparent)",
           messageBox: "bg-green-900 bg-opacity-20 border border-green-800",
-          message: "The fates have smiled upon your endeavor!"
+          message: "The fates have smiled upon your endeavor!",
+          rewardBg: "bg-green-900/30",
+          rewardBorder: "border-yellow-600"
         };
       case "partial":
         return {
@@ -31,7 +33,9 @@ const QuestOutcomes = ({ outcome, onNextStage, loading } : QuestOutcomeProps) =>
           titleShadow: "0 0 10px rgba(255, 191, 0, 0.7), 0 0 20px rgba(255, 191, 0, 0.4)",
           gradient: "linear-gradient(90deg, transparent, #B8860B, transparent)",
           messageBox: "bg-amber-900 bg-opacity-20 border border-amber-800",
-          message: "Fortune smiles, yet shadows linger on your path."
+          message: "Fortune smiles, yet shadows linger on your path.",
+          rewardBg: "bg-amber-900/30",
+          rewardBorder: "border-amber-600"
         };
       case "failure":
         return {
@@ -42,7 +46,9 @@ const QuestOutcomes = ({ outcome, onNextStage, loading } : QuestOutcomeProps) =>
           titleShadow: "0 0 10px rgba(255, 0, 0, 0.7), 0 0 20px rgba(255, 0, 0, 0.4)",
           gradient: "linear-gradient(90deg, transparent, #8B0000, transparent)",
           messageBox: "bg-red-900 bg-opacity-20 border border-red-800",
-          message: "Fortune has turned against you this day."
+          message: "Fortune has turned against you this day.",
+          rewardBg: "bg-red-900/30",
+          rewardBorder: "border-red-800"
         };
       default:
         return {
@@ -53,12 +59,58 @@ const QuestOutcomes = ({ outcome, onNextStage, loading } : QuestOutcomeProps) =>
           titleShadow: "0 0 10px rgba(200, 200, 200, 0.7), 0 0 20px rgba(200, 200, 200, 0.4)",
           gradient: "linear-gradient(90deg, transparent, #708090, transparent)",
           messageBox: "bg-gray-900 bg-opacity-20 border border-gray-800",
-          message: "The outcome remains shrouded in mystery."
+          message: "The outcome remains shrouded in mystery.",
+          rewardBg: "bg-gray-900/30",
+          rewardBorder: "border-gray-700"
         };
     }
   };
 
   const styles = getStatusStyles();
+
+  // Helper to render stat changes
+  const renderStatChanges = () => {
+    if (!outcome.outcome.rewards?.statChange) return null;
+    
+    const changes = outcome.outcome.rewards.statChange;
+    const statEntries = Object.entries(changes).filter(([_, value]) => value > 0);
+    
+    if (statEntries.length === 0) return null;
+    
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-3">
+        {statEntries.map(([stat, value]) => (
+          <div key={stat} className={`flex items-center gap-2f p-2 rounded ${styles.rewardBg} border ${styles.rewardBorder}`}>
+            <div className="w-8 h-8 flex items-center justify-center rounded-full bg-opacity-30 mr-2">
+              {getStatIcon(stat)}
+            </div>
+            <div>
+              <p className="capitalize text-white text-sm font-semibold">{stat}</p>
+              <p className="text-green-300 text-xs font-bold">+{value}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  // Helper to get appropriate icon for each stat
+  const getStatIcon = (stat: string) => {
+    switch(stat.toLowerCase()) {
+      case 'strength':
+        return "💪";
+      case 'agility':
+        return "🏃";
+      case 'intellect':
+        return "🧠";
+      case 'charisma':
+        return "💫";
+      case 'luck':
+        return "🍀";
+      default:
+        return "✨";
+    }
+  };
 
   return (
     <motion.div
@@ -110,6 +162,30 @@ const QuestOutcomes = ({ outcome, onNextStage, loading } : QuestOutcomeProps) =>
         <p className="text-gray-200 mb-4 italic font-medium leading-relaxed">
           {outcome.outcome.description}
         </p>
+
+        {/* Rewards Section */}
+        {outcome.outcome.rewards && (
+          <div className="mt-6">
+            <div className="flex items-center mb-3">
+              <div className="w-8 h-1 bg-yellow-600 rounded-full mr-2"></div>
+              <h4 className="text-yellow-300 font-bold text-lg">REWARDS</h4>
+              <div className="w-8 h-1 bg-yellow-600 rounded-full ml-2"></div>
+            </div>
+            
+            {/* XP Reward */}
+            {outcome.outcome.rewards.xp > 0 && (
+              <div className={`p-3 rounded ${styles.rewardBg} border ${styles.rewardBorder} mb-3 flex items-center`}>
+                <div>
+                  <p className="text-white font-bold">Experience Gained</p>
+                  <p className="text-yellow-300 font-bold text-xl">+{outcome.outcome.rewards.xp} XP</p>
+                </div>
+              </div>
+            )}
+            
+            {/* Stat Changes */}
+            {renderStatChanges()}
+          </div>
+        )}
 
         <div className={`mt-4 p-3 rounded ${styles.messageBox}`}>
           <p className="text-white text-sm">

@@ -20,7 +20,7 @@ export default function HomePage() {
     <div className="min-h-screen flex flex-col">
       <NavBar />
 
-      <main className="flex-grow mt-24">
+      <main className="flex-grow mt-24 mx-auto">
         <Hero />
 
         {/* Magical Particles */}

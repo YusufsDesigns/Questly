@@ -16,6 +16,7 @@ import QuestBanner from "./QuestBanner";
 import axios from "axios";
 import {
   applyLootBonuses,
+  applyOutcomeRewards,
   applyQuestCompletionRewards,
   itemTypeToEnum,
   rarityToEnum,
@@ -70,8 +71,10 @@ export default function QuestPage({
 
       const outcome: QuestOutcome = response.data;
       setQuestOutcome(outcome);
-      console.log(outcome);
-      
+      setCharacter((prev) =>
+        prev ? applyOutcomeRewards(prev, outcome) : null
+      );
+
       return outcome;
     } catch (error: any) {
       console.error("Failed to resolve quest choice:", error);
@@ -150,30 +153,30 @@ export default function QuestPage({
         const questConclusion = response.data as QuestConclusion;
 
         // Check if loot should be granted
-      if (questConclusion.conclusion.rewards.lootEligible) {
-        const quality = questConclusion.conclusion.rewards.lootQuality;
+        if (questConclusion.conclusion.rewards.lootEligible) {
+          const quality = questConclusion.conclusion.rewards.lootQuality;
 
-        // Find all loot matching this rarity
-        const matchingLoot = PREDEFINED_LOOT.filter(
-          (loot) => loot.rarity === quality
-        );
-
-        if (matchingLoot.length > 0) {
-          // Randomly select one loot from matching pool
-          const selectedLoot =
-            matchingLoot[Math.floor(Math.random() * matchingLoot.length)];
-
-          // Apply stat bonuses to character
-          setCharacter((prev) =>
-            prev ? applyLootBonuses(prev, selectedLoot) : null
+          // Find all loot matching this rarity
+          const matchingLoot = PREDEFINED_LOOT.filter(
+            (loot) => loot.rarity === quality
           );
 
-          // You might want to store this selected loot in state/display it in the UI
-          setNewLoot(selectedLoot);
-          setShowLootModal(true);
-          // Log the loot gained
+          if (matchingLoot.length > 0) {
+            // Randomly select one loot from matching pool
+            const selectedLoot =
+              matchingLoot[Math.floor(Math.random() * matchingLoot.length)];
+
+            // Apply stat bonuses to character
+            setCharacter((prev) =>
+              prev ? applyLootBonuses(prev, selectedLoot) : null
+            );
+
+            // You might want to store this selected loot in state/display it in the UI
+            setNewLoot(selectedLoot);
+            setShowLootModal(true);
+            // Log the loot gained
+          }
         }
-      }
 
         setCompletedQuest(questConclusion);
         setQuestComplete(true);

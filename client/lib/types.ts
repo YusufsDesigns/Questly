@@ -103,6 +103,16 @@ export interface QuestOutcome {
     outcome: {
         description: string;
         outcomeStatus: string;
+        rewards: {
+            xp: number,
+            statChange: {
+                strength: number,
+                agility: number,
+                intellect: number,
+                charisma: number,
+                luck: number
+            }
+        };
     };
     nextStage: {
         questStage: number;

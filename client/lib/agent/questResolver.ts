@@ -87,6 +87,92 @@ const determineOutcomeStatus = (successProbability: number): "success" | "partia
   }
 };
 
+/**
+ * Calculates appropriate rewards based on quest difficulty, outcome, and character stats
+ */
+const calculateRewards = (
+  character: Character,
+  quest: Quest,
+  selectedOption: any,
+  outcomeStatus: "success" | "partial" | "failure"
+): { xp: number; statChanges: Record<string, number> } => {
+  // Base XP is determined by quest difficulty and total stages
+  const baseXP = selectedOption.difficulty * 5 * (quest.questStage / quest.totalStages);
+  
+  // Adjust XP based on outcome status
+  let xpMultiplier = 0;
+  switch (outcomeStatus) {
+    case "success":
+      xpMultiplier = 1.0;  // Full XP for success
+      break;
+    case "partial":
+      xpMultiplier = 0.6;  // Reduced XP for partial success
+      break; 
+    case "failure":
+      xpMultiplier = 0.25; // Minimal XP for failure (learning from mistakes)
+      break;
+  }
+  
+  // Calculate final XP rounded to nearest integer
+  const finalXP = Math.round(baseXP * xpMultiplier);
+  
+  // Initialize stat changes with zeros
+  const statChanges: Record<string, number> = {
+    strength: 0,
+    agility: 0,
+    intellect: 0,
+    charisma: 0,
+    luck: 0
+  };
+  
+  // Determine which stats to improve based on quest outcome and required stat
+  const requiredStat = selectedOption.requiredStat.toLowerCase();
+  
+  // No stat improvements for complete failure
+  if (outcomeStatus === "failure") {
+    return { xp: finalXP, statChanges };
+  }
+  
+  // Calculate stat improvement amount based on difficulty and outcome
+  const baseStat = outcomeStatus === "success" ? 
+    Math.min(4, Math.max(1, Math.floor(selectedOption.difficulty / 3))) : 
+    Math.min(2, Math.max(1, Math.floor(selectedOption.difficulty / 5)));
+  
+  // Primary stat improvement - always improve the required stat
+  statChanges[requiredStat] = baseStat;
+  
+  // For successful and challenging quests, occasionally improve a secondary relevant stat
+  if (outcomeStatus === "success" && selectedOption.difficulty >= 8 && Math.random() > 0.5) {
+    // Determine logical secondary stat based on primary stat
+    let secondaryStat = "";
+    
+    switch (requiredStat) {
+      case "strength":
+        secondaryStat = Math.random() > 0.5 ? "agility" : "luck";
+        break;
+      case "agility":
+        secondaryStat = Math.random() > 0.5 ? "strength" : "luck";
+        break;
+      case "intellect":
+        secondaryStat = Math.random() > 0.5 ? "charisma" : "luck";
+        break;
+      case "charisma":
+        secondaryStat = Math.random() > 0.5 ? "intellect" : "luck";
+        break;
+      case "luck":
+        // Pick a random stat to pair with luck
+        const stats = ["strength", "agility", "intellect", "charisma"];
+        secondaryStat = stats[Math.floor(Math.random() * stats.length)];
+        break;
+    }
+    
+    // Add a smaller bonus to the secondary stat
+    statChanges[secondaryStat] = Math.max(1, Math.floor(baseStat / 2));
+  }
+  
+  return { xp: finalXP, statChanges };
+};
+
 export const resolveQuestChoice = async (
   characterData: Character,
   questData: Quest,
@@ -187,6 +273,38 @@ export const resolveQuestChoice = async (
     
     // Ensure the predetermined outcome status is used
     outcomeData.outcome.outcomeStatus = outcomeStatus;
+    
+    // Calculate next stage number
+    const nextStageNumber = questData.questStage + 1;
+    
+    // Programmatically check if quest is complete
+    const isQuestComplete = nextStageNumber > questData.totalStages;
+    
+    // Force isQuestComplete to true if we've reached the end
+    outcomeData.nextStage.isQuestComplete = isQuestComplete;
+    
+    // Ensure nextStage.questStage is properly set
+    outcomeData.nextStage.questStage = nextStageNumber;
+    
+    // Calculate rewards based on outcome and difficulty
+    const rewards = calculateRewards(
+      characterData,
+      questData,
+      selectedOption,
+      outcomeStatus
+    );
+    
+    // Add rewards to the outcome
+    outcomeData.outcome.rewards = {
+      xp: rewards.xp,
+      statChange: {
+        strength: rewards.statChanges.strength,
+        agility: rewards.statChanges.agility,
+        intellect: rewards.statChanges.intellect,
+        charisma: rewards.statChanges.charisma,
+        luck: rewards.statChanges.luck
+      }
+    };
     
     return outcomeData;
   } catch (error) {
