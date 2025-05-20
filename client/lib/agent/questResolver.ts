@@ -259,7 +259,7 @@ export const resolveQuestChoice = async (
   5. The storytelling should be vivid and incorporate elements of ${characterData.characterClass} abilities.`;
 
   const { text } = await generateText({
-    model: openai("gpt-4o"),
+    model: openai("gpt-4o-mini"), // You can choose the appropriate model
     system: systemPrompt,
     prompt: userPrompt,
     temperature: 0.7,

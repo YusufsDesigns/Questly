@@ -207,6 +207,48 @@ body::before {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Add these to your globals.css file */
+
+/* Important CSS for animation to work */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 10s linear infinite;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-in-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Glass panel styling */
+.glass-panel {
+  background-color: rgba(30, 30, 30, 0.5);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 191, 0, 0.2);
+}
+
+/* Fantasy text styling */
+.fantasy-text {
+  font-family: "Cinzel", serif;
+  letter-spacing: 0.05em;
+}
+
 .animate-float {
   animation: float 4s ease-in-out infinite;
 }

@@ -12,6 +12,7 @@ import MagicParticles from "@/components/MagicParticles";
 import FloatingRunes from "@/components/FloatingRunes";
 import DragonFlyby from "@/components/DragonFlyby";
 import { useAccount } from "wagmi";
+import FantasyAudioPlayer from "@/components/FantasyAudioPlayer";
 
 export default function HomePage() {
   const account = useAccount();
@@ -20,7 +21,7 @@ export default function HomePage() {
     <div className="min-h-screen flex flex-col">
       <NavBar />
 
-      <main className="flex-grow mt-24 mx-auto">
+      <main className="flex-grow mt-24">
         <Hero />
 
         {/* Magical Particles */}
@@ -58,6 +59,8 @@ export default function HomePage() {
           )}
         </AnimatePresence>
       </main>
+
+      <FantasyAudioPlayer />
 
       <Footer />
     </div>
